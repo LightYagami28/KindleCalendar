@@ -1,11 +1,11 @@
 const PORT = 8080;
 const http = require('http');
 const fs = require('fs');
-const WsHixie = require('ws-plus-hixie');
+const WebSocket = require('ws-plus-hixie');
 const filewatcher = require('filewatcher');
 
 const server = http.createServer((request, response) => {
-    url = request.url;
+    let url = request.url;
 
     if (url.indexOf('?') > 0)
         url = url.substring(0, url.indexOf('?'));
@@ -42,13 +42,14 @@ const server = http.createServer((request, response) => {
     }
 });
 
-const wsBridge = new WsHixie(server);
+const wsBridge = new WebSocket(server);
 
 const sendMessage = (scope, message) => {
     const json = JSON.stringify({ msj: message, sc: scope });
     wsBridge.send(json);
     console.log('message sent:' + json);
-}
+};
+
 server.on('error', error => {
     if (error.code === 'EADDRINUSE')
         console.log('ERROR: Port already in use');
@@ -60,10 +61,9 @@ server.on('request', () => {
     console.log('New request');
 });
 
-
 // Start watching directory..
 const watcher = filewatcher();
-watchFiles = ['./screenshot.png', './gcal.png'];
+const watchFiles = ['./screenshot.png', './gcal.png'];
 for (const url of watchFiles) {
     if (!fs.existsSync(url)) {
         console.log(url, 'NOT FOUND, creating... ');
@@ -72,12 +72,12 @@ for (const url of watchFiles) {
     watcher.add(url);
 }
 
-var last = Date.now();
+let last = Date.now();
 
 watcher.on('change', (filename, stat) => {
     if (stat.blocks < 1 || stat.size < 1) return;
-    var now = Date.now();
-    if (now - last < 1000) return;	    // file watcher flood protection
+    const now = Date.now();
+    if (now - last < 1000) return; // file watcher flood protection
     console.log('onChange:', filename, stat);
     sendMessage('bg', filename.substring(2));
     last = now;

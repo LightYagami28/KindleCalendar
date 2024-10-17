@@ -3,6 +3,8 @@ Automate screenshots of your calendar and view them on the Kindle browser using 
 
 ![KindleCalendar](https://raw.githubusercontent.com/morrolinux/KindleCalendar/main/kindleCalendar.png?token=GHSAT0AAAAAABZERVYNQVD7HKC52IKX5PHWYZXAWEA)
 
+**Important Notice:** The `hixie` library has been deprecated due to a security vulnerability present in the code. For more information, please refer to the [Snyk vulnerability report](https://security.snyk.io/vuln/SNYK-JS-WS-7266574).
+
 ## Getting Started
 
 1. Log in to your Raspberry Pi or desired device.
@@ -40,6 +42,3 @@ Automate screenshots of your calendar and view them on the Kindle browser using 
 If everything went well, you should be able to visit your Pi's IP address on port 8080 with any browser, including Kindle, but ensure JavaScript is enabled in the browser settings.
 
 Enjoy!
-
-Special thanks to [noxquest](https://bitbucket.org/ocampos/noxquest_kindle-tty/src/master/) for the awesome project and the `hixie` bridge node library :)
-```

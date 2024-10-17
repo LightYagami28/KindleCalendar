@@ -28,24 +28,24 @@ const startListener = () => {
     }
 
     active = true;
-    const wsConn = new WebSocket(`ws://${window.location.hostname}:8080/`);
+    const socket = io(); // Initialize socket.io client
 
-    wsConn.onopen = () => {
+    socket.on('connect', () => {
         setMessage('Active', COLOR_OK);
-    };
+    });
 
-    wsConn.onclose = (e) => {
-        setMessage(`Disconn. ${JSON.stringify(e)}`, COLOR_ERROR);
+    socket.on('disconnect', (reason) => {
+        setMessage(`Disconnected: ${reason}`, COLOR_ERROR);
         active = false;
-    };
+    });
 
-    wsConn.onerror = (e) => {
-        setMessage(`ERROR ${e.code} ${e}`, COLOR_ERROR);
-    };
+    socket.on('connect_error', (error) => {
+        setMessage(`ERROR: ${error.message}`, COLOR_ERROR);
+    });
 
-    wsConn.onmessage = (message) => {
+    socket.on('message', (message) => {
         try {
-            const data = JSON.parse(message.data);
+            const data = JSON.parse(message);
             setMessage(data.msj, COLOR_OK);
 
             if (data.sc === 'bg') {
@@ -59,7 +59,7 @@ const startListener = () => {
         } catch (e) {
             setMessage(`MSG ERROR: ${e}`, COLOR_ERROR);
         }
-    };
+    });
 };
 
 body.addEventListener('click', cycleCurrentView);

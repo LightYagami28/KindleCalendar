@@ -1,10 +1,11 @@
 const PORT = 8080;
-const http = require('http');
+const https = require('https');
 const fs = require('fs');
-const WebSocket = require('ws-plus-hixie');
+const rateLimit = require('express-rate-limit');
+const socketIO = require('socket.io'); // Import socket.io
 const filewatcher = require('filewatcher');
 
-const server = http.createServer((request, response) => {
+const server = https.createServer((request, response) => {
     let url = request.url;
 
     if (url.indexOf('?') > 0)
@@ -20,7 +21,7 @@ const server = http.createServer((request, response) => {
     switch (url) {
         case '/':
         case '/index.html':
-            response.setHeader('Content-Type', 'text/html');
+            response.setHeader('Content-Type', 'text/html; charset=UTF-8');
             fs.createReadStream('index.html').pipe(response);
             break;
         case '/client.js':
@@ -36,18 +37,17 @@ const server = http.createServer((request, response) => {
             fs.createReadStream('screenshot.png').pipe(response);
             break;
         default:
-            response.statusCode = 404;
-            response.write('Not found');
-            response.end();
+            response.status(404).end();
+            break;
     }
 });
 
-const wsBridge = new WebSocket(server);
+const io = socketIO(server); // Initialize socket.io
 
 const sendMessage = (scope, message) => {
     const json = JSON.stringify({ msj: message, sc: scope });
-    wsBridge.send(json);
-    console.log('message sent:' + json);
+    io.emit('message', json); // Use socket.io to emit messages
+    console.log('message sent: ' + json);
 };
 
 server.on('error', error => {
@@ -83,6 +83,6 @@ watcher.on('change', (filename, stat) => {
     last = now;
 });
 
-server.listen(PORT);
-
-console.log('Listening on port ' + PORT);
+server.listen(PORT, () => {
+    console.log('Listening on port ' + PORT);
+});
